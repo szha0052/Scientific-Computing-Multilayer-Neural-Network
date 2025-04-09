@@ -90,3 +90,20 @@ class MLP:
                     # 更新 BatchNorm 的 gamma 和 beta 参数
                     layer.gamma -= lr * layer.dgamma
                     layer.beta -= lr * layer.dbeta
+
+    def predict_and_evaluate(self, x_test, y_test):
+        # Disable dropout
+        logits = self.forward(x_test, training=False)
+        print("logits:", logits)
+
+        
+        # y_pred label
+        y_pred = np.argmax(logits, axis=1)
+
+        # Compute acc
+        acc = np.mean(y_pred == y_test)
+        print(f" Test Accuracy: {acc * 100:.2f}%")
+
+        return y_pred
+
+
