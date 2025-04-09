@@ -14,6 +14,8 @@ class Linear:
         return x @ self.W + self.b
 
     def backward(self, grad):
-        self.dW = self.x.T @ grad / self.x.shape[0]
+        # self.dW = self.x.T @ grad / self.x.shape[0]
+        self.dW = self.x.T @ grad
         self.db = np.mean(grad, axis=0)
+        # self.db = np.sum(grad, axis=0)
         return grad @ self.W.T

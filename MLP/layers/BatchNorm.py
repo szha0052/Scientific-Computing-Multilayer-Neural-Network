@@ -42,7 +42,6 @@ class BatchNorm:
 
     def backward(self, grad):
         batch_size = grad.shape[0]
-
         # 参数梯度
         dgamma = np.sum(grad * self.x_norm, axis=0)
         dbeta = np.sum(grad, axis=0)

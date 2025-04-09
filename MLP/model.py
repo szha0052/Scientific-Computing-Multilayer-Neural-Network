@@ -31,6 +31,8 @@ class MLP:
         for layer in self.layers:
             if isinstance(layer, Dropout):
                 x = layer.forward(x, training)
+            elif isinstance(layer, BatchNorm):
+                x = layer.forward(x, training)
             else:
                 x = layer.forward(x)
         output = x
@@ -73,8 +75,10 @@ class MLP:
                     }
                 v = velocity[i]
                 # final gradient
-                grad_W = layer.dW + self.weight_decay * layer.W
-                grad_b = layer.db 
+                # grad_W = layer.dW + self.weight_decay * layer.W
+                grad_W = np.mean(layer.dW, axis=0) + self.weight_decay * layer.W
+                # grad_b = layer.db 
+                grad_b = np.mean(layer.db, axis=0)
                 # update momentum
                 v['W'] = momentum * v['W'] - lr * grad_W
                 v['b'] = momentum * v['b'] - lr * grad_b
@@ -82,14 +86,7 @@ class MLP:
                 layer.W += v['W']
                 layer.b += v['b']
 
-            # elif isinstance(layer, BatchNorm):
-            #     if i not in velocity:
-            #         velocity[i] = {
-            #             'gamma': np.zeros_like(layer.gamma),
-            #             'beta': np.zeros_like(layer.beta)
-            #         }
-            #     v = velocity[i]
-            #     v['gamma'] = momentum * v['gamma'] - lr * layer.dgamma
-            #     v['beta'] = momentum * v['beta'] - lr * layer.dbeta
-            #     layer.gamma += v['gamma']
-            #     layer.beta += v['beta']
+            elif isinstance(layer, BatchNorm):
+                    # 更新 BatchNorm 的 gamma 和 beta 参数
+                    layer.gamma -= lr * layer.dgamma
+                    layer.beta -= lr * layer.dbeta
