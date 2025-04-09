@@ -29,10 +29,10 @@ class MLP:
         # training=True randomly turns some neuron outputs to 0
         # training=False dont discard any neurons, use all activation values directly
         for layer in self.layers:
-            if isinstance(layer, Dropout):
+            if isinstance(layer, (Dropout,BatchNorm)):
                 x = layer.forward(x, training)
-            elif isinstance(layer, BatchNorm):
-                x = layer.forward(x, training)
+            # elif isinstance(layer, BatchNorm):
+            #     x = layer.forward(x, training)
             else:
                 x = layer.forward(x)
         output = x
@@ -75,10 +75,10 @@ class MLP:
                     }
                 v = velocity[i]
                 # final gradient
-                # grad_W = layer.dW + self.weight_decay * layer.W
-                grad_W = np.mean(layer.dW, axis=0) + self.weight_decay * layer.W
-                # grad_b = layer.db 
-                grad_b = np.mean(layer.db, axis=0)
+                grad_W = layer.dW + self.weight_decay * layer.W
+                # grad_W = np.mean(layer.dW, axis=0) + self.weight_decay * layer.W
+                grad_b = layer.db 
+                # grad_b = np.mean(layer.db, axis=0)
                 # update momentum
                 v['W'] = momentum * v['W'] - lr * grad_W
                 v['b'] = momentum * v['b'] - lr * grad_b
@@ -94,7 +94,6 @@ class MLP:
     def predict_and_evaluate(self, x_test, y_test):
         # Disable dropout
         logits = self.forward(x_test, training=False)
-        print("logits:", logits)
 
         
         # y_pred label

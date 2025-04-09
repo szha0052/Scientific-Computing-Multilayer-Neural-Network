@@ -49,7 +49,8 @@ class BatchNorm:
         # 输入梯度
         dx_norm = grad * self.gamma
         dvar = np.sum(dx_norm * self.x_centered * -0.5 * (self.var + self.eps)**(-1.5), axis=0)
-        dmean = np.sum(dx_norm * -1 / np.sqrt(self.var + self.eps), axis=0) + dvar * np.mean(-2 * self.x_centered, axis=0)
+        # dmean = np.sum(dx_norm * -1 / np.sqrt(self.var + self.eps), axis=0) + dvar * np.mean(-2 * self.x_centered, axis=0)
+        dmean = np.sum(dx_norm * -1 / np.sqrt(self.var + self.eps), axis=0) + dvar * np.sum(-2 * self.x_centered, axis=0) / batch_size
 
         dx = dx_norm / np.sqrt(self.var + self.eps) + dvar * 2 * self.x_centered / batch_size + dmean / batch_size
 
