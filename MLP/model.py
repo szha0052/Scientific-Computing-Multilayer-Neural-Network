@@ -6,12 +6,14 @@ from MLP.layers.Dropout import Dropout
 from MLP.layers.BatchNorm import BatchNorm
 # from layers import Linear, ReLU, SoftmaxCrossEntropy, Dropout, BatchNorm # waiting for rename/adjustments
 
+
 class MLP:
-    def __init__(self, input_dim, hidden_dims, output_dim, dropout_rate=0.5, weight_decay=0.0001):
+    def __init__(self, input_dim, hidden_dims, output_dim, dropout_rate=0.5, weight_decay=0.0001, optimizer= None):
         # initialize
         self.layers = []
         self.dropout_rate = dropout_rate
         self.weight_decay = weight_decay
+        self.optimize = optimizer
         # combine dims
         dims = [input_dim] + hidden_dims + [output_dim]
         self.num_layers = len(dims) - 1
@@ -63,38 +65,14 @@ class MLP:
         # return regularization loss
         return reg
 
-    def update(self, lr, momentum, velocity):
-        # find weighted Linear layer
-        for i, layer in enumerate(self.layers):
-            if isinstance(layer, Linear):
-                if i not in velocity:
-                    # initialize momentum
-                    velocity[i] = {
-                        'W': np.zeros_like(layer.W), #v_Weight
-                        'b': np.zeros_like(layer.b) # v_bias
-                    }
-                v = velocity[i]
-                # final gradient
-                grad_W = layer.dW + self.weight_decay * layer.W
-                # grad_W = np.mean(layer.dW, axis=0) + self.weight_decay * layer.W
-                grad_b = layer.db 
-                # grad_b = np.mean(layer.db, axis=0)
-                # update momentum
-                v['W'] = momentum * v['W'] - lr * grad_W
-                v['b'] = momentum * v['b'] - lr * grad_b
-
-                layer.W += v['W']
-                layer.b += v['b']
-
-            elif isinstance(layer, BatchNorm):
-                    # 更新 BatchNorm 的 gamma 和 beta 参数
-                    layer.gamma -= lr * layer.dgamma
-                    layer.beta -= lr * layer.dbeta
-
+    def update(self, lr):
+        # update weights
+        self.optimize.update(self.layers, lr, self.weight_decay)
+ 
     def predict_and_evaluate(self, x_test, y_test):
         # Disable dropout
         logits = self.forward(x_test, training=False)
-
+        
         
         # y_pred label
         y_pred = np.argmax(logits, axis=1)
