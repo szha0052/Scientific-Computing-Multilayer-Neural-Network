@@ -7,7 +7,8 @@ class MiniBatchFit:
                  output_dim, 
                  num_epochs=10, 
                  batch_size=32, 
-                 learning_rate=0.01):
+                 learning_rate=0.01,
+                 write = True):
         """
         :param model: 你的模型对象，内部应包含forward、compute_loss、backward、update等方法
         :param optimizer: 优化器对象，示例里仅使用了optimizer.increment_time_step()
@@ -27,6 +28,7 @@ class MiniBatchFit:
         self.num_epochs = num_epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.write = write
 
     def fit(self):
         for epoch in range(self.num_epochs):
@@ -60,4 +62,7 @@ class MiniBatchFit:
 
             # 计算并打印每个epoch的平均损失
             avg_loss = epoch_loss / (len(self.X_train) // self.batch_size)
-            print(f'Epoch {epoch+1}/{self.num_epochs}, Loss: {avg_loss:.4f}')
+            if self.write:
+                # 这里假设你的模型有一个write方法，用于记录训练过程
+                print(f'Epoch {epoch+1}/{self.num_epochs}, Loss: {avg_loss:.4f}')
+
