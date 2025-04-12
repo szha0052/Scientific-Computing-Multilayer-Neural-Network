@@ -79,8 +79,8 @@ class MLP:
 
         # Compute acc
         acc = np.mean(y_pred == y_test)
-        print(f" Test Accuracy: {acc * 100:.2f}%")
+        print(f" Accuracy: {acc * 100:.2f}%")
 
-        return y_pred
+        return y_pred, acc
 
 
